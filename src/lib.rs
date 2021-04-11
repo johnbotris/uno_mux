@@ -126,7 +126,7 @@ where
     }
 
     fn is_low(&self) -> Result<bool, Self::Error> {
-        self.io.is_high()
+        self.io.is_low()
     }
 }
 
