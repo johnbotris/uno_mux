@@ -1,5 +1,5 @@
 [package]
-name = "uno_mux_16ch"
+name = "uno_mux"
 version = "0.1.0"
 authors = ["John <me@johnbotr.is>"]
 edition = "2018"
