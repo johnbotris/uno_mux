@@ -1,0 +1,14 @@
+[package]
+name = "uno_mux_16ch"
+version = "0.1.0"
+authors = ["John <me@johnbotr.is>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ufmt = "0.1.0"
+
+[dependencies.avr-hal-generic]
+git = "https://github.com/Rahix/avr-hal"
+rev = "a20277873a8102998d5fd69743771bd8c0aa9423"
