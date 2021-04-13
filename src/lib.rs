@@ -90,6 +90,30 @@ impl<S0, S1, S2, S3, IO, EN> Multiplexer<S0, S1, S2, S3, IO, EN> {
     {
         self.enable.set_high()
     }
+
+    /// get the nth pin
+    /// ```
+    /// let mut pin10 = mux.pin(U4::TEN).unwrap();
+    /// pin10.set_high();
+    /// arduino_uno::delay_ms(1000);
+    /// pin10.set_low();
+    /// ```
+    pub fn pin<'mux>(
+        &'mux mut self,
+        channel: U4,
+    ) -> Result<
+        MuxChannel<'mux, IO>,
+        MultiplexSelectionError<S0::Error, S1::Error, S2::Error, S3::Error>,
+    >
+    where
+        S0: OutputPin,
+        S1: OutputPin,
+        S2: OutputPin,
+        S3: OutputPin,
+    {
+        self.select(channel)?;
+        Ok(MuxChannel { pin: &mut self.io })
+    }
 }
 
 fn set_pin<PIN: OutputPin>(pin: &mut PIN, on: bool) -> Result<(), PIN::Error> {
@@ -141,6 +165,52 @@ where
     }
 }
 
+pub struct MuxChannel<'mux, PinType> {
+    pin: &'mux mut PinType,
+}
+
+impl<'mux, PinType> OutputPin for MuxChannel<'mux, PinType>
+where
+    PinType: OutputPin,
+{
+    type Error = PinType::Error;
+
+    fn set_high(&mut self) -> Result<(), Self::Error> {
+        self.pin.set_high()
+    }
+
+    fn set_low(&mut self) -> Result<(), Self::Error> {
+        self.pin.set_low()
+    }
+}
+
+impl<'mux, PinType> InputPin for MuxChannel<'mux, PinType>
+where
+    PinType: InputPin,
+{
+    type Error = PinType::Error;
+
+    fn is_high(&self) -> Result<bool, Self::Error> {
+        self.pin.is_high()
+    }
+
+    fn is_low(&self) -> Result<bool, Self::Error> {
+        self.pin.is_low()
+    }
+}
+
+impl<'mux, ADC, PinType> Channel<ADC> for MuxChannel<'mux, PinType>
+where
+    PinType: Channel<ADC>,
+{
+    type ID = PinType::ID;
+
+    fn channel() -> Self::ID {
+        PinType::channel()
+    }
+}
+
+#[derive(Debug)]
 pub enum MultiplexSelectionError<E0, E1, E2, E3> {
     Select0(E0),
     Select1(E1),
